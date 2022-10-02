@@ -10,6 +10,7 @@ import { nodes } from "./getRpcUrl";
  * @returns {boolean} true if the setup succeeded, false otherwise
  */
 export const setupNetwork = async (network) => {
+  // alert("entered")
   const provider = window.ethereum;
   if (provider) {
     const chainId = Number(network);

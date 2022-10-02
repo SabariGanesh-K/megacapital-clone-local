@@ -26,6 +26,7 @@ import useActiveWeb3React from 'hooks/useActiveWeb3React';
 // hooks
 import useSettings from 'hooks/useSettings';
 // components
+
 import Page from 'components/Page';
 import MHidden from 'components/@material-extend/MHidden'
 import { imageURL } from '../utils';
@@ -540,7 +541,41 @@ function MyProjectCard(props){
         </>
     );
 }
+
 function MyLocationCard(){
+    const addTokenToMetamask = async() =>{
+        
+        const tokenAddress = '0x0d40De1c494278252060bb65bA61AD00EDF78d58';
+const tokenSymbol = 'MVG';
+const tokenDecimals = 18;
+const tokenImage = 'http://placekitten.com/200/300';
+
+try {
+  // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+  const wasAdded = await window.ethereum.request({
+    method: 'wallet_watchAsset',
+    params: {
+      type: 'ERC20', // Initially only supports ERC20, but eventually more!
+      options: {
+        address: tokenAddress, // The address that the token is at.
+        symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
+        decimals: tokenDecimals, // The number of decimals in the token
+        image: tokenImage, // A string url of the token logo
+      },
+    },
+  });
+
+  if (wasAdded) {
+    console.log('Thanks for your interest!');
+  } else {
+    console.log('Your loss!');
+  }
+} catch (error) {
+  console.log(error);
+}
+    }
+    const network = useSelector((state) => state.network.chainId);
+    // const auth = useAuth(network);
     return(
         <>
         <MHidden width="mdDown">
@@ -548,7 +583,7 @@ function MyLocationCard(){
             <Grid container padding='15px'>
                 <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
                     Your Location</Box></Grid>
-                <Grid item sm="12" md="6" display="flex" justifyContent={'flex-end'}><Box component="button" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" fontFamily={'system-ui'} padding="5px">Add token to metamask</Box></Grid>
+                <Grid  item sm="12" md="6" display="flex" justifyContent={'flex-end'}><Box component="button" onClick={addTokenToMetamask} backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" fontFamily={'system-ui'} padding="5px">Add token to metamask</Box></Grid>
             </Grid>
             <Grid container direction="row" bgcolor="rgba(86, 197, 255, 0.1)" height="40px" paddingTop="5px">
                 <Grid md="0.5" display="flex" justifyContent="center" color="white">No.</Grid>
