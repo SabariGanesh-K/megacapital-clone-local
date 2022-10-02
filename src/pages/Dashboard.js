@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import Loader from 'react-loader-spinner';
 import { useNavigate } from 'react-router';
 import { ethers } from 'ethers';
+import {PublicKey} from '@solana/web3.js'
 import { ExportAbi } from 'utils/exportAbi';
 // material
 import {
@@ -296,11 +297,39 @@ const togglemail = () =>{
   setmailtoggle(!mailtoggle);
 }
 const handlemailchange = (e) =>{
+
     setnewmail(e.target.value);
 }
-const handlesubmit = () =>{
-    setaddress(newmail);
-    setmailtoggle(!mailtoggle)
+const handlesubmit = async() =>{
+    if (props.title[0]=="E"){
+        if(newmail.toLowerCase()
+        .match(
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )){
+            setaddress(newmail);
+            setmailtoggle(!mailtoggle)
+        }
+        else{
+            alert("Enter valid mail address")
+        }
+    }
+    else{
+        try {
+            let pubkey = new PublicKey(newmail)
+            let  isSolana =  PublicKey.isOnCurve(pubkey.toBuffer())
+            if (isSolana){
+                setaddress(newmail);
+                setmailtoggle(!mailtoggle)
+            }
+            else{
+                alert("Enter valid solana address");
+            }
+        } catch (error) {
+            alert("Enter valid solana address");
+        }
+     
+    }
+   
 }
 
 
@@ -415,15 +444,18 @@ function MyProjectCard(props){
     const tokenAddress = pathname.split('/')[pathname.split('/').length - 1];
     useEffect(() => {
         (async () => {
+          
           try {
+            if(deals.length==0){
             const response = await apis.getDeals();
             if (response.statusText !== 'OK') return console.log('RESPONSE ->', response);
     
             const pools = response.data.pools;
     
             console.log("DATA IS",pools);
-            
+            setDeals([])
             setDeals(pools);
+            }
           } catch (e) {
             console.error('error occurred while fetching deals');
           }
