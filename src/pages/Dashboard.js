@@ -55,11 +55,38 @@ export default function Stakepad() {
   const [sort, setSort] = useState('createdAt');
   const [isLoading, setIsLoading] = useState(true);
   const [value, setValue] = React.useState(30);
-
- 
+    const [projectsLen,setprojectslen] = useState(0);
+    const [allocationprice,setallocationprice] = useState(0)
   const network = useSelector((state) => state.network.chainId);
   const pools = useSelector((state) => state.pools.pools);
   const totalPage = useSelector((state) => state.pools.totalPage);
+  useEffect(() => {
+    (async () => {
+      
+      try {
+       
+        const response = await apis.getDeals();
+        if (response.statusText !== 'OK') return console.log('RESPONSE ->', response);
+
+        const pools = response.data.pools;
+
+        setprojectslen(pools.length)
+        const val=0;
+        pools.forEach((item)=>{
+            val+=parseInt( item.maxAllocationPerUser);
+        })
+             
+        
+        setallocationprice(val);
+        // console.log("DATA IS",pools);
+        // setDeals([])
+        // setDeals(pools);
+        
+      } catch (e) {
+        console.error('error occurred while fetching deals');
+      }
+    })();
+  }, []);
   const handlePageChange = (e, value) => {
     setPage(value);
   };
@@ -132,8 +159,8 @@ export default function Stakepad() {
                         Projects
                     </Grid>
                     <Grid container direction={"row"} marginTop="30px" spacing={2} >
-                        <Grid item md="6"><ProjectCard title="Allocated Projects" amount="23"></ProjectCard></Grid>
-                        <Grid item md="6"><ProjectCard title="Total Allocated" amount="$12345"></ProjectCard></Grid>
+                        <Grid item md="6"><ProjectCard title="Allocated Projects" amount= {projectsLen} ></ProjectCard></Grid>
+                        <Grid item md="6"><ProjectCard title="Total Allocated" amount={allocationprice}></ProjectCard></Grid>
                     </Grid>
                     <Grid marginTop="20px" color="#56C5FF" fontSize="34px">
                         My Projects
@@ -164,8 +191,8 @@ export default function Stakepad() {
                         Projects
                     </Grid>
                     <Grid container direction={"row"} marginTop="10px" spacing={2} >
-                        <Grid item xs="6"><ProjectCard title="Allocated Projects" amount="23"></ProjectCard></Grid>
-                        <Grid item xs="6"><ProjectCard title="Total Allocated" amount="$12345"></ProjectCard></Grid>
+                        <Grid item xs="6"><ProjectCard title="Allocated Projects"amount= {projectsLen} ></ProjectCard></Grid>
+                        <Grid item xs="6"><ProjectCard title="Total Allocated" amount={allocationprice}></ProjectCard></Grid>
                     </Grid>
                     <Grid marginTop="20px" marginBottom="20px" color="#56C5FF" fontSize="20px"  display="flex" justifyContent="center">
                         My Projects
