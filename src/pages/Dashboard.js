@@ -290,10 +290,88 @@ function MySlideBar(props){
 }
 function AddressCard(props){
    
- 
-const [mailtoggle,setmailtoggle] = useState(false);
+    // 0x00172998d5130D93399c0d9FC14af0762aD9aAeB
+    const contr = '0x8cB675ed507Bf4eDb18Cf0D141e0d7e3E1A81a27';
+    const abi =   [
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "newval",
+              "type": "string"
+            }
+          ],
+          "name": "changeMail",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "newval",
+              "type": "string"
+            }
+          ],
+          "name": "changeSolanaAdd",
+          "outputs": [],
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "returnUserData",
+          "outputs": [
+            {
+              "components": [
+                {
+                  "internalType": "string",
+                  "name": "mail",
+                  "type": "string"
+                },
+                {
+                  "internalType": "string",
+                  "name": "solanaAdd",
+                  "type": "string"
+                }
+              ],
+              "internalType": "struct Lock.User",
+              "name": "",
+              "type": "tuple"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ]
+      const [mailtoggle,setmailtoggle] = useState(false);
 const [newmail,setnewmail] = useState("");
 const [address,setaddress] = useState(props.address);
+const provider = new ethers.providers.Web3Provider(window.ethereum);
+const signer = provider.getSigner();
+const contract = new ethers.Contract(contr, abi, signer);  
+      useEffect(()=>{
+        const requestAccounts = async () => {
+            await provider.send("eth_requestAccounts", []);
+            // setloggedinstatus(true)
+          }
+          const getDatas = async() =>{
+            let data = await contract.returnUserData(); 
+            // alert("xwaswa",data.mail)
+            if (props.title[0]=="E"){
+                setaddress(data.mail)
+            }
+            else{
+                setaddress(data.solanaAdd)
+            }
+          }
+          requestAccounts()
+          getDatas()
+      },[])
+     
+      
+
 const togglemail = () =>{
   setmailtoggle(!mailtoggle);
 }
@@ -307,6 +385,8 @@ const handlesubmit = async() =>{
         .match(
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         )){
+            
+            await contract.changeMail(newmail)
             setaddress(newmail);
             setmailtoggle(!mailtoggle)
         }
@@ -319,6 +399,8 @@ const handlesubmit = async() =>{
             let pubkey = new PublicKey(newmail)
             let  isSolana =  PublicKey.isOnCurve(pubkey.toBuffer())
             if (isSolana){
+              
+                await contract.changeSolanaAdd(newmail.toString())
                 setaddress(newmail);
                 setmailtoggle(!mailtoggle)
             }
