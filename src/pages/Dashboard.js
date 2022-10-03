@@ -71,7 +71,7 @@ export default function Stakepad() {
         const pools = response.data.pools;
 
         setprojectslen(pools.length)
-        const val=0;
+        let val=0;
         pools.forEach((item)=>{
             val+=parseInt( item.maxAllocationPerUser);
         })
