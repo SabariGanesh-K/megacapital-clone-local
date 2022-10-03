@@ -166,7 +166,7 @@ export default function Stakepad() {
                         My Projects
                     </Grid>
                     <MyProjectCard angle="down"></MyProjectCard>
-                    <MyProjectCard angle="up"></MyProjectCard>
+                    {/* <MyProjectCard angle="up"></MyProjectCard> */}
                     <MyLocationCard></MyLocationCard>
                 </Grid>
             </MHidden>
@@ -550,6 +550,7 @@ function MyProjectCard(props){
     const { pathname, hash } = useLocation();
     const [data,setData] = useState([]);
     const [deals,setDeals] = useState([]);
+    const [len,setlen] = useState(0);
     // const [deals,setdeals] = useState([]);
     const tokenAddress = pathname.split('/')[pathname.split('/').length - 1];
     useEffect(() => {
@@ -562,9 +563,16 @@ function MyProjectCard(props){
     
             const pools = response.data.pools;
     
-            console.log("DATA IS",pools);
+            // console.log("DATA IS",pools);
             setDeals([])
             setDeals(pools);
+            // alert(pools.length/2 +1)
+            if(pools.length%2==0){
+                setlen(pools.length/2)
+            }
+            else{
+                setlen((pools.length/2))
+            }
             }
           } catch (e) {
             console.error('error occurred while fetching deals');
@@ -581,10 +589,13 @@ function MyProjectCard(props){
     //       }
     //     })();
     //   }, []);
+// let len= ((deals.length%2==0)?deals.length/2:deals.length/2-1)
+
+
     return(
         <>
         { deals.length>0 &&
-         deals.map((item,k)=>{
+         deals.slice(len).map((item,k)=>{
             return(
             <div key = {k}>
      <MHidden width="mdDown">
@@ -617,6 +628,8 @@ function MyProjectCard(props){
             </div>
             )
         })}
+        {deals.length==0 &&    <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
+                    Loading...</Box></Grid>   }
    
         {/* <MHidden width="mdUp">
         <Grid item container xs={12} bgcolor={"#232323"} padding="15px" border="1px solid #56C5FF" borderRadius={1} boxShadow="0px 6px 50px #000000;">
