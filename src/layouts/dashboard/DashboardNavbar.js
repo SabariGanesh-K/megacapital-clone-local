@@ -112,7 +112,7 @@ export default function DashboardNavbar({ onOpenSidebar }) {
                 mx={1}
                 fontSize={'16px'}
                 sx={{ textDecoration: 'none', color: '#FFF', cursor: 'pointer' }}
-                onClick={() => alert('Coming Soon')}
+                onClick={() => navigate('/dashboard')}
               >
                 Dashboard
               </Box>
