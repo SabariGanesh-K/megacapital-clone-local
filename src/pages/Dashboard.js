@@ -21,7 +21,7 @@ import {  useLayoutEffect } from 'react';
 import apis from 'services';
 import { getPools } from 'redux/slices/pools';
 import { SearchContext } from 'contexts/SearchContext';
-import { useIDOContract, useTokenContract } from 'hooks/useContract';
+import { useIDOContract, useStakingContract, useTokenContract } from 'hooks/useContract';
 import useActiveWeb3React from 'hooks/useActiveWeb3React';
 // hooks
 import useSettings from 'hooks/useSettings';
@@ -30,6 +30,8 @@ import useSettings from 'hooks/useSettings';
 import Page from 'components/Page';
 import MHidden from 'components/@material-extend/MHidden'
 import { imageURL } from '../utils';
+import { useSnackbar } from 'notistack';
+import axios from 'axios';
 // import { ExportAbi } from 'utils/exportAbi';
 
 // ----------------------------------------------------------------------
@@ -230,10 +232,13 @@ function VoteCard(props){
 function ProgressCard(){
     // const { library, account } = useActiveWeb3React();
     const [value, setValue] = React.useState(30);
+    const conds = {alpha:1000,beta:2000,gamma:3000,delta:4000,epsilon:5000}
+    const [tier, settier] = useState('');
     const contr = process.env.REACT_APP_CONTRACT_ADDRESS;
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const polygonContract = new ethers.Contract(contr, ExportAbi, signer); 
+
     // const polygonContract = useTokenContract(contr);
     useEffect(()=>{
         const requestAccounts = async () => {
@@ -242,7 +247,24 @@ function ProgressCard(){
           }
         const getbalance = async() =>{
             let bal = await polygonContract.balanceOf("0x5c1a4F5AE38D4199868D53ad28B1095930a1485D")
+            // alert(bal)
             alert(bal)
+            
+            if(bal<=conds.alpha){
+                settier("Alpha");
+            }
+            else if(bal<=conds.beta){
+                settier("Beta")
+            }
+            else if(bal<=conds.delta){
+                settier("Gamma")
+            }
+            else if(bal<=conds.epsilon){
+                settier("Epsilon")
+            }
+            else{
+                settier("Zeta")
+            }
         }
         try {
             requestAccounts()
@@ -263,7 +285,7 @@ function ProgressCard(){
             <Grid item  padding="10px"><Box component="img" width="100%" height="100px" position="relative" src={imageURL('bit.png')} ></Box></Grid>
             <Grid item  padding="10px" display="flex" position="relative" marginTop="10px">
                 <Box fontSize="19px">MEGA</Box>
-                <Box position="absolute" padding="5px 10px 5px 10px" borderRadius={0.5} right="12px" style={{backgroundColor:"rgba(255, 255, 255, 0.1)", color:"white"}}>Alpha</Box>
+                <Box position="absolute" padding="5px 10px 5px 10px" borderRadius={0.5} right="12px" style={{backgroundColor:"rgba(255, 255, 255, 0.1)", color:"white"}}> {tier} </Box>
             </Grid>
             <Grid item marginTop="10px"><Box component="button" border="none" borderRadius={1} height="30px" width="100%" style={{backgroundColor:"#56C5FF", color:"white"}}>INFO</Box></Grid>
         </Grid>
@@ -271,11 +293,12 @@ function ProgressCard(){
         <Grid container item width="73%" marginLeft="2%" paddingLeft="20px" style={{backgroundColor:"#232323", borderRadius:5}}>
             <Grid md="8"> <Box marginTop="20px" component="h3" color="#56C5FF">Progress</Box></Grid>
             <Grid container direction="row">
-                <Grid item md="2.4"><MySlideBar current={100} title="Alpha"></MySlideBar></Grid>
-                <Grid item md="2.4"><MySlideBar current={100} title="Beta"></MySlideBar></Grid>
-                <Grid item md="2.4"><MySlideBar current={100} title="Gamma"></MySlideBar></Grid>
-                <Grid item md="2.4"><MySlideBar current={20} title="Epilson"></MySlideBar></Grid>
-                <Grid item md="2.4"><MySlideBar current={30} title="Zeta"></MySlideBar></Grid>
+                <Grid item md="2.4"><MySlideBar current={1.59} title="Alpha"></MySlideBar></Grid>
+                <Grid item md="2.4"><MySlideBar current={3.18} title="Beta"></MySlideBar></Grid>
+                <Grid item md="2.4"><MySlideBar current={6.35} title="Gamma"></MySlideBar></Grid>
+                <Grid item md="2.4"><MySlideBar current={12.70} title="delta"></MySlideBar></Grid>
+                <Grid item md="2.4"><MySlideBar current={25.40} title="Epilson"></MySlideBar></Grid>
+                <Grid item md="2.4"><MySlideBar current={50.81} title="Zeta"></MySlideBar></Grid>
             </Grid>
         </Grid>
         </MHidden>
@@ -310,7 +333,7 @@ function MySlideBar(props){
         </Box>
         <Box position="relative">
             <Box position="absolute" left="1px" color="white">{props.title}</Box>
-            <Box position="absolute" right="15px" color="#696974">0 MEGA</Box>
+            {/* <Box position="absolute" right="15px" color="#696974">0 MEGA</Box> */}
         </Box>
         </>
     );
@@ -595,7 +618,7 @@ function MyProjectCard(props){
     return(
         <>
         { deals.length>0 &&
-         deals.slice(len).map((item,k)=>{
+         deals.map((item,k)=>{
             return(
             <div key = {k}>
      <MHidden width="mdDown">
@@ -696,7 +719,32 @@ try {
   console.log(error);
 }
     }
+    const { enqueueSnackbar } = useSnackbar();
+    const dispatch = useDispatch();
+    const { account } = useActiveWeb3React();
     const network = useSelector((state) => state.network.chainId);
+    // const [isLoading, setIsLoading] = useState(true);
+    const [pools, SetPools] = useState([]);
+  
+    useEffect(() => {
+      (async () => {
+        try {
+          const response = await axios.get(`/api/bsc/stake`, {});
+          if (response.data) {
+            SetPools(response.data.data);
+          } else {
+            enqueueSnackbar('failed', {
+              variant: 'danger'
+            });
+          }
+        } catch (error) {
+          console.log(error);
+          enqueueSnackbar('Oops, Something went wrong!', {
+            variant: 'error'
+          });
+        }
+      })();
+    }, [account, network]);
     // const auth = useAuth(network);
     return(
         <>
@@ -716,10 +764,16 @@ try {
                 <Grid md="1.5" display="flex" justifyContent="center" color="white">Claimed</Grid>
                 <Grid md="1" display="flex" justifyContent="center" color="white">Action</Grid>
             </Grid>
-            <AllocationList number={1}/>
-            <AllocationList number={2}/>
+            {pools.length>0 && pools.map((item,k)=>{
+                <AllocationList number={k+1}  name={item.tokenName} symb = {item.tokenSymbol} addr = {item.tokenAddress} start={item.startAt} rate = {item.rewardRate}  />
+            },[]) 
+            }
+            {pools.length==0 &&  <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
+                    Loading...</Box></Grid>  }
         </Grid>
         </MHidden>
+        {/* 56C5FF */}
+        {/* No,allocation,percentage,date,listing date,claim,action */}
         <MHidden width="mdUp">
         <Grid container direction="row" bgcolor="#232323" width="100%" marginTop="30px" borderRadius={1}>
             <Grid container padding='15px'>
@@ -749,16 +803,50 @@ try {
     );
 }
 function AllocationList(props){
+    // const tokenContract = useTokenContract(props.addr);
+    const { library, account } = useActiveWeb3React();
+    const [staked,setstaked] = useState(0);
+    const [rewards, setreward] = useState(0);
+    const { enqueueSnackbar } = useSnackbar();
+    const stakingContract = useStakingContract(props.addr);
+    useEffect(()=>{
+        const getData = async() =>{
+            try{
+                let stakedr = await stakingContract.balances(account);
+                setstaked(stakedr);
+                let rewardsr = await stakingContract.earned(account);
+                setreward(rewardsr);
+            }
+            catch(error){
+console.log(error);
+            }
+        }
+       getData()
+    },[])
+  
+    const handleHarvest = async () => {
+        
+        try {
+          const tx = await stakingContract.getReward();
+          await tx.wait();
+        //   navigate(`/stakepad`);
+        } catch (err) {
+            enqueueSnackbar('Error', {
+                variant: 'danger'
+              });
+          return;
+        }
+      };
     return(
         <Grid container marginTop='10px' direction="row" height="40px"  fontSize="19px">
             <Grid md="0.5" display="flex" justifyContent="center" color="white">{props.number}</Grid>
-            <Grid md="1.5" display="flex" justifyContent="center" color="white">4000 GOLD</Grid>
-            <Grid md="1.5" display="flex" justifyContent="center" color="white">10.00%</Grid>
-            <Grid md="3" display="flex" justifyContent="center" color="white">22/02/2022 to 22/10/2022</Grid>
-            <Grid md="3" display="flex" justifyContent="center" color="white">22/02/2022</Grid>
-            <Grid md="1.5" display="flex" justifyContent="center" color="white">0.0000</Grid>
+            <Grid md="1.5" display="flex" justifyContent="center" color="white">{staked} {props.tokenName}</Grid>
+            <Grid md="1.5" display="flex" justifyContent="center" color="white"> {props.rate} %</Grid>
+            <Grid md="3" display="flex" justifyContent="center" color="white">  {props.start} to 22/10/2022</Grid>
+            <Grid md="3" display="flex" justifyContent="center" color="white"> {props.start} </Grid>
+            <Grid md="1.5" display="flex" justifyContent="center" color="white"> {rewards}</Grid>
             <Grid md="1" display="flex" justifyContent="center" bgColor="#303030" width="100%" color="#56C5FF">
-                <Box  display="flex" justifyContent="center" backgroundColor="rgba(255, 255, 255, 0.1)" width="70px" height="30px">Claim</Box>
+                <Box  component="button" onClick={handleHarvest} display="flex" justifyContent="center" backgroundColor="rgba(255, 255, 255, 0.1)" width="70px" height="30px">Claim</Box>
             </Grid>
         </Grid>
     );
