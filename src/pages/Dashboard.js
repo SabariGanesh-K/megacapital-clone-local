@@ -732,6 +732,8 @@ try {
           const response = await axios.get(`/api/bsc/stake`, {});
           if (response.data) {
             SetPools(response.data.data);
+            console.log("DATA IS",pools)
+            console.log("donee")
           } else {
             enqueueSnackbar('failed', {
               variant: 'danger'
