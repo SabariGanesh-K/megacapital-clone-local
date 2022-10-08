@@ -239,7 +239,9 @@ function ProgressCard(){
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const polygonContract = new ethers.Contract(contr, ExportAbi, signer); 
-
+    const [address, setAddress] = useState()
+    // ...
+    
     // const polygonContract = useTokenContract(contr);
     useEffect(()=>{
         const requestAccounts = async () => {
@@ -247,7 +249,9 @@ function ProgressCard(){
             // setloggedinstatus(true)
           }
         const getbalance = async() =>{
-            let bal = await polygonContract.balanceOf("0x5c1a4F5AE38D4199868D53ad28B1095930a1485D")
+            let adr = await signer.getAddress()
+            // setAddress()
+            let bal = await polygonContract.balanceOf(adr)
             // alert(bal)
             // alert(bal)
             
@@ -837,9 +841,10 @@ function AllocationList(props){
           }
         const getData = async() =>{
             try{
-                let stakedr = await stakingContract.balances('0x5c1a4F5AE38D4199868D53ad28B1095930a1485D');
+                let adr = await signer.getAddress()
+                let stakedr = await stakingContract.balances(adr);
                 setstaked(stakedr);
-                let rewardsr = await stakingContract.earned('0x5c1a4F5AE38D4199868D53ad28B1095930a1485D');
+                let rewardsr = await stakingContract.earned(adr);
                 setreward(rewardsr);
                 alert("done");
             }

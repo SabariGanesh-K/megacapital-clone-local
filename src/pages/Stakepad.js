@@ -131,7 +131,7 @@ export function   StakingPool(props) {
         const response = await axios.get(`/api/bsc/stake`, {});
         if (response.data) {
           SetPools(response.data.data);
-          console.log("stake is",response.data.data)
+          // console.log("stake is",response.data.data)
         } else {
           enqueueSnackbar('failed', {
             variant: 'danger'
