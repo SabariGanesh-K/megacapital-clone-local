@@ -232,7 +232,7 @@ function VoteCard(props){
 function ProgressCard(){
     // const { library, account } = useActiveWeb3React();
     const [value, setValue] = React.useState(30);
-    const conds = {alpha:1000,beta:2000,gamma:3000,delta:4000,epsilon:5000}
+    const conds = {alpha:1000,beta:2000,gamma:3000,delta:4000,epsilon:5000,zeta:6000}
     const [tier, settier] = useState('');
     const contr = process.env.REACT_APP_CONTRACT_ADDRESS;
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -248,18 +248,24 @@ function ProgressCard(){
         const getbalance = async() =>{
             let bal = await polygonContract.balanceOf("0x5c1a4F5AE38D4199868D53ad28B1095930a1485D")
             // alert(bal)
-            alert(bal)
+            // alert(bal)
             
-            if(bal<=conds.alpha){
-                settier("Alpha");
+            if(bal<conds.alpha){
+                settier("No Tier");
             }
-            else if(bal<=conds.beta){
+            else if(bal>=conds.alpha && bal<conds.beta){
+                settier("Alpha")
+            }
+            else if(bal>=conds.beta&& bal<conds.gamma){
                 settier("Beta")
             }
-            else if(bal<=conds.delta){
+            else if(bal>=conds.gamma && bal<conds.delta){
                 settier("Gamma")
             }
-            else if(bal<=conds.epsilon){
+            else if(bal>=conds.delta && bal<conds.epsilon){
+                settier("Delta")
+            }
+            else if(bal>=conds.epsilon && bal<conds.zeta){
                 settier("Epsilon")
             }
             else{
@@ -584,7 +590,7 @@ function MyProjectCard(props){
             const response = await apis.getDeals();
             if (response.statusText !== 'OK') return console.log('RESPONSE ->', response);
     
-            const pools = response.data.pools;
+            let pools = response.data.pools;
     
             // console.log("DATA IS",pools);
             setDeals([])
@@ -724,7 +730,7 @@ try {
     const { account } = useActiveWeb3React();
     const network = useSelector((state) => state.network.chainId);
     // const [isLoading, setIsLoading] = useState(true);
-    const [pools, SetPools] = useState([]);
+    const [rewardData, SetPools] = useState([]);
   
     useEffect(() => {
       (async () => {
@@ -732,7 +738,7 @@ try {
           const response = await axios.get(`/api/bsc/stake`, {});
           if (response.data) {
             SetPools(response.data.data);
-            console.log("DATA IS",pools)
+            console.log("DATA IS",response.data.data)
             console.log("donee")
           } else {
             enqueueSnackbar('failed', {
@@ -740,7 +746,7 @@ try {
             });
           }
         } catch (error) {
-          console.log(error);
+          console.log("error is",error);
           enqueueSnackbar('Oops, Something went wrong!', {
             variant: 'error'
           });
@@ -766,11 +772,11 @@ try {
                 <Grid md="1.5" display="flex" justifyContent="center" color="white">Claimed</Grid>
                 <Grid md="1" display="flex" justifyContent="center" color="white">Action</Grid>
             </Grid>
-            {pools.length>0 && pools.map((item,k)=>{
+            {rewardData.length>0 && rewardData.map((item,k)=>{
                 <AllocationList number={k+1}  name={item.tokenName} symb = {item.tokenSymbol} addr = {item.tokenAddress} start={item.startAt} rate = {item.rewardRate}  />
             },[]) 
             }
-            {pools.length==0 &&  <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
+            {rewardData.length==0 &&  <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
                     Loading...</Box></Grid>  }
         </Grid>
         </MHidden>
