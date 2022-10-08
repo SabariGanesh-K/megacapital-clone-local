@@ -494,6 +494,7 @@ function FarmingPools() {
         const response = await axios.get(`/api/bsc/stake`, {});
         if (response.data) {
           SetPools(response.data.data);
+          console.log("in stake",response.data.data)
         } else {
           enqueueSnackbar('failed', {
             variant: 'danger'
