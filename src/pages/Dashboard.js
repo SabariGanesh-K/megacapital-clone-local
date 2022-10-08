@@ -867,7 +867,7 @@ console.log(error);
     return(
         <Grid container marginTop='10px' direction="row" height="40px"  fontSize="19px">
             <Grid md="0.5" display="flex" justifyContent="center" color="white">{props.number}</Grid>
-            <Grid md="1.5" display="flex" justifyContent="center" color="white">{staked} {props.tokenName}</Grid>
+            <Grid md="1.5" display="flex" justifyContent="center" color="white">{staked} {props.name}</Grid>
             <Grid md="1.5" display="flex" justifyContent="center" color="white"> {props.rate} %</Grid>
             <Grid md="3" display="flex" justifyContent="center" color="white">  {props.start.slice(0,10)} to 22/10/2022</Grid>
             <Grid md="3" display="flex" justifyContent="center" color="white"> {props.start.slice(0,10)} </Grid>
