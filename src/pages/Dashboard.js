@@ -738,7 +738,7 @@ try {
           const response = await axios.get(`/api/bsc/stake`, {});
           if (response.data) {
             SetPools(response.data.data);
-            console.log("DATA IS",response.data.data)
+            console.log("DATA IS",response.data.data,response.data)
             console.log("donee")
           } else {
             enqueueSnackbar('failed', {
@@ -772,7 +772,7 @@ try {
                 <Grid md="1.5" display="flex" justifyContent="center" color="white">Claimed</Grid>
                 <Grid md="1" display="flex" justifyContent="center" color="white">Action</Grid>
             </Grid>
-            {rewardData.length>0 && rewardData.map((item,k)=>{
+            {rewardData&& rewardData.length!=0 && rewardData.map((item,k)=>{
                 <AllocationList number={k+1}  name={item.tokenName} symb = {item.tokenSymbol} addr = {item.tokenAddress} start={item.startAt} rate = {item.rewardRate}  />
             },[]) 
             }
