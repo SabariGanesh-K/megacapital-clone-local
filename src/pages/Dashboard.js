@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router';
 import { ethers } from 'ethers';
 import {PublicKey} from '@solana/web3.js'
 import { ExportAbi } from 'utils/exportAbi';
+import STAKING_ABI from '../config/abi/staking.json';
 // material
 import {
   Box,
@@ -730,29 +731,35 @@ try {
     const { account } = useActiveWeb3React();
     const network = useSelector((state) => state.network.chainId);
     // const [isLoading, setIsLoading] = useState(true);
-    const [rewardData, SetPools] = useState([]);
+    const [rewardData, SetPools] = useState([{address:"0x152DF19e35Dd324B6CF99C6175002Af0b42C8B12",createdAt:'2022-07-27T10:46:22.078Z',rewardRate:3,startAt:  "2022-07-27T10:45:05.857Z",tokenAddress: "0xE353a45D64f4D2E6761bcbf9d64b9E6d2C826CfA",tokenName: "PLUTO", tokenSymbol:  "PLT"}]);
   
-    useEffect(() => {
-      (async () => {
-        try {
-          const response = await axios.get(`/api/bsc/stake`, {});
-          if (response.data) {
-            SetPools(response.data.data);
-            console.log("DATA IS",response.data.data,response.data)
-            console.log("donee",response.data)
-          } else {
-            enqueueSnackbar('failed', {
-              variant: 'danger'
-            });
-          }
-        } catch (error) {
-          console.log("error is",error);
-          enqueueSnackbar('Oops, Something went wrong!', {
-            variant: 'error'
-          });
-        }
-      })();
-    }, [account, network]);
+    // useEffect(() => {
+    //   (async () => {
+    //     try {
+    //         // let data = [{address:"0x152DF19e35Dd324B6CF99C6175002Af0b42C8B12",createdAt:'2022-07-27T10:46:22.078Z',rewardRate:3,startAt:  "2022-07-27T10:45:05.857Z",tokenAddress: "0xE353a45D64f4D2E6761bcbf9d64b9E6d2C826CfA",tokenName: "PLUTO", tokenSymbol:  "PLT"}]
+    //         // console.log("DATA IS",response.data.data,response.data)
+    //         // console.log("donee",response.data)
+    //         // SetPools(data);
+    //       let response = await axios.get(`/api/bsc/stake`, {});
+    //       if (response.data) {
+    //         // SetPools(response.data.data);
+    //         let data = [{address:"0x152DF19e35Dd324B6CF99C6175002Af0b42C8B12",createdAt:'2022-07-27T10:46:22.078Z',rewardRate:3,startAt:  "2022-07-27T10:45:05.857Z",tokenAddress: "0xE353a45D64f4D2E6761bcbf9d64b9E6d2C826CfA",tokenName: "PLUTO", tokenSymbol:  "PLT"}]
+    //         console.log("DATA IS",response.data.data,response.data)
+    //         // console.log("donee",response.data)
+    //         SetPools(data);
+    //       } else {
+    //         enqueueSnackbar('failed', {
+    //           variant: 'danger'
+    //         });
+    //       }
+    //     } catch (error) {
+    //       console.log("error is",error);
+    //       enqueueSnackbar('Oops, Something went wrong!', {
+    //         variant: 'error'
+    //       });
+    //     }
+    //   })();
+    // }, [account, network]);
     // const auth = useAuth(network);
     return(
         <>
@@ -772,8 +779,10 @@ try {
                 <Grid md="1.5" display="flex" justifyContent="center" color="white">Claimed</Grid>
                 <Grid md="1" display="flex" justifyContent="center" color="white">Action</Grid>
             </Grid>
-            {rewardData&& rewardData.length!=0 && rewardData.map((item,k)=>{
-                <AllocationList number={k+1}  name={item.tokenName} symb = {item.tokenSymbol} addr = {item.tokenAddress} start={item.startAt} rate = {item.rewardRate}  />
+            {rewardData.length!=0 && rewardData.map((item,k)=>{
+                return(
+                <AllocationList number={k+1}  name={item.tokenName} symb = {item.tokenSymbol} addr = {item.address} start={item.startAt} rate = {item.rewardRate}  />
+                )
             },[]) 
             }
             {rewardData.length==0 &&  <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
@@ -816,19 +825,29 @@ function AllocationList(props){
     const [staked,setstaked] = useState(0);
     const [rewards, setreward] = useState(0);
     const { enqueueSnackbar } = useSnackbar();
-    const stakingContract = useStakingContract(props.addr);
+    // const stakingContract = useStakingContract(props.addr);
+    const contr = props.addr;
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const stakingContract = new ethers.Contract(contr, STAKING_ABI, signer); 
     useEffect(()=>{
+        const requestAccounts = async () => {
+            await provider.send("eth_requestAccounts", []);
+            // setloggedinstatus(true)
+          }
         const getData = async() =>{
             try{
-                let stakedr = await stakingContract.balances(account);
+                let stakedr = await stakingContract.balances('0x5c1a4F5AE38D4199868D53ad28B1095930a1485D');
                 setstaked(stakedr);
-                let rewardsr = await stakingContract.earned(account);
+                let rewardsr = await stakingContract.earned('0x5c1a4F5AE38D4199868D53ad28B1095930a1485D');
                 setreward(rewardsr);
+                alert("done");
             }
             catch(error){
 console.log(error);
             }
         }
+        requestAccounts()
        getData()
     },[])
   
@@ -850,8 +869,8 @@ console.log(error);
             <Grid md="0.5" display="flex" justifyContent="center" color="white">{props.number}</Grid>
             <Grid md="1.5" display="flex" justifyContent="center" color="white">{staked} {props.tokenName}</Grid>
             <Grid md="1.5" display="flex" justifyContent="center" color="white"> {props.rate} %</Grid>
-            <Grid md="3" display="flex" justifyContent="center" color="white">  {props.start} to 22/10/2022</Grid>
-            <Grid md="3" display="flex" justifyContent="center" color="white"> {props.start} </Grid>
+            <Grid md="3" display="flex" justifyContent="center" color="white">  {props.start.slice(0,10)} to 22/10/2022</Grid>
+            <Grid md="3" display="flex" justifyContent="center" color="white"> {props.start.slice(0,10)} </Grid>
             <Grid md="1.5" display="flex" justifyContent="center" color="white"> {rewards}</Grid>
             <Grid md="1" display="flex" justifyContent="center" bgColor="#303030" width="100%" color="#56C5FF">
                 <Box  component="button" onClick={handleHarvest} display="flex" justifyContent="center" backgroundColor="rgba(255, 255, 255, 0.1)" width="70px" height="30px">Claim</Box>

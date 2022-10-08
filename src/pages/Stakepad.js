@@ -117,7 +117,7 @@ export default function Stakepad() {
   );
 }
 
-export function StakingPool(props) {
+export function   StakingPool(props) {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
   const { account } = useActiveWeb3React();
