@@ -171,6 +171,7 @@ export default function Stakepad() {
                     <MyProjectCard angle="down"></MyProjectCard>
                     {/* <MyProjectCard angle="up"></MyProjectCard> */}
                     <MyLocationCard></MyLocationCard>
+                    <ReferralCard></ReferralCard>
                 </Grid>
             </MHidden>
             <MHidden width="mdUp">
@@ -202,6 +203,7 @@ export default function Stakepad() {
                     </Grid>
                     <MyProjectCard angle="down"></MyProjectCard>
                     <MyLocationCard></MyLocationCard>
+                    <ReferralCard></ReferralCard>
                 </Grid>
             </MHidden>
       {/* </Container> */}
@@ -229,6 +231,86 @@ function VoteCard(props){
                 </Grid>
             </Grid>
     );
+}
+function ReferralCard(){
+    const [referrer,setrefreer] = useState("");
+    const [name,setname] = useState("");
+    const [mail,setmail] = useState("");
+    const [amount,setamount] = useState(0);
+    const handleName = (e) =>{
+setname(e.target.value)
+    }
+    const handleMail = (e) =>{
+setmail(e.target.value)
+    }
+    const handleAmount = (e) =>{
+setamount(e.target.value)
+    }
+    const handleSubmit = () =>{
+
+
+    }
+    return(
+        <>
+        <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h2" fontFamily={'system-ui'} color="#56C5FF">
+                    Referral</Box></Grid>
+                    <Box component="button"width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                    fontFamily={'system-ui'} padding="5px">
+                    Claim Reward</Box>
+                    <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'} wrap>
+                    <TextField style={{
+                        border:"none",
+                        margin:'2%',
+                        fontSize: "18px",
+                        justifyContent:"center",
+                        alignItems:"center",
+                        display:"flex",
+                       
+                       
+                    }}
+  id="outlined-name"
+  label="Name"
+  value={name}
+  onChange={handleName}
+/>
+<TextField style={{
+                        border:"none",
+                        margin:'2%',
+                        fontSize: "18px",
+                        justifyContent:"center",
+                        alignItems:"center",
+                        display:"flex",
+                        
+                       
+                    }}
+  id="outlined-name"
+  label="Mail"
+  value={mail}
+  onChange={handleMail}
+/>
+<TextField style={{
+                        border:"none",
+                        margin:'2%',
+                        fontSize: "18px",
+                        justifyContent:"center",
+                        alignItems:"center",
+                        display:"flex",
+                       
+                       
+                    }}
+  id="outlined-name"
+  label="Amount"
+  type="number"
+  value={amount}
+  onChange={handleAmount}
+/>
+</Grid>
+                    <Box component="button"width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                    fontFamily={'system-ui'} padding="5px">
+                    Add Referer</Box>
+                
+                    </>
+    )
 }
 function ProgressCard(){
     // const { library, account } = useActiveWeb3React();
