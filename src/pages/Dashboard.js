@@ -33,6 +33,7 @@ import MHidden from 'components/@material-extend/MHidden'
 import { imageURL } from '../utils';
 import { useSnackbar } from 'notistack';
 import axios from 'axios';
+import { ExportRefABI } from 'utils/exportRefABI';
 // import { ExportAbi } from 'utils/exportAbi';
 
 // ----------------------------------------------------------------------
@@ -73,13 +74,18 @@ export default function Stakepad() {
 
         const pools = response.data.pools;
 
-        setprojectslen(pools.length)
+        // setprojectslen(pools.length)
         let val=0;
+        let lenn=0;
         pools.forEach((item)=>{
+            if(item.whiteLists.includes(account)){
             val+=parseInt( item.maxAllocationPerUser);
+            lenn++;
+        
+            }
         })
              
-        
+        setprojectslen(lenn);
         setallocationprice(val);
         // console.log("DATA IS",pools);
         // setDeals([])
@@ -156,7 +162,7 @@ export default function Stakepad() {
                     <ProgressCard></ProgressCard>
                     <Grid container direction={"row"} marginTop="30px" spacing={2} >
                         <Grid item md="6"><AddressCard src={imageURL('email.svg')} title="Email" address={usermail}></AddressCard></Grid>
-                        <Grid item md="6"><AddressCard src={imageURL('solana-sol-logo 1.png')} title="Solana address" address="1231sdsxssds....124" token={1}></AddressCard></Grid>
+                        <Grid item md="6"><AddressCard src={imageURL('solana-sol-logo 1.png')} title="Solana address" address="" token={1}></AddressCard></Grid>
                     </Grid>
                     <Grid marginTop="20px" color="#56C5FF" fontSize="34px">
                         Projects
@@ -237,28 +243,71 @@ function ReferralCard(){
     const [name,setname] = useState("");
     const [mail,setmail] = useState("");
     const [amount,setamount] = useState(0);
+    const [bal,setbal] = useState(0);
+    const [regstatus,setregstatus] = useState(false);
+    const contr = process.env.REACT_APP_REF_CONTRACT_ADDRESS;
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const polygonContract = new ethers.Contract(contr, ExportRefABI, signer); 
+    const [address, setAddress] = useState("");
+    const { enqueueSnackbar } = useSnackbar();
+    useEffect(() => {
+      
+        const requestAccounts = async () => {
+            await provider.send("eth_requestAccounts", []);
+            // setloggedinstatus(true)
+          }
+
+        const fetchData=async()=>{
+            let ad = await signer.getAddress();
+            setAddress(ad);
+            let stat = await polygonContract.userInfo(ad);
+            alert(stat.name);
+            console.log("weer",stat);
+            setregstatus(stat.name.length>0);
+           let balll= await polygonContract.balanceSpecific(ad);
+           setbal(parseInt(balll._hex)/10**18);
+
+        }
+        requestAccounts().catch(console.errror)
+        fetchData().catch(console.error)
+    }, [])
+
+    
+    
     const handleName = (e) =>{
 setname(e.target.value)
     }
     const handleMail = (e) =>{
 setmail(e.target.value)
     }
-    const handleAmount = (e) =>{
-setamount(e.target.value)
+    const handleRefferer = (e) =>{
+setrefreer(e.target.value);
     }
-    const handleSubmit = () =>{
+    const handleReferralSubmit = async() =>{
+ 
+            await polygonContract.addReffererAndSendRewards(referrer,mail,name);
 
+       
 
+    }
+
+    const handleClaimRewards = async() =>{
+  
+            await polygonContract.claimRewards(address);
+
+      
     }
     return(
         <>
+        <div>Your balancee:-  {bal} </div>
         <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h2" fontFamily={'system-ui'} color="#56C5FF">
                     Referral</Box></Grid>
-                    <Box component="button"width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                    <Box onClick={handleClaimRewards} component="button"width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
                     fontFamily={'system-ui'} padding="5px">
                     Claim Reward</Box>
                     <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'} wrap>
-                    <TextField style={{
+{!regstatus&&<>   <TextField style={{
                         border:"none",
                         margin:'2%',
                         fontSize: "18px",
@@ -299,15 +348,16 @@ setamount(e.target.value)
                        
                     }}
   id="outlined-name"
-  label="Amount"
-  type="number"
-  value={amount}
-  onChange={handleAmount}
-/>
+  label="Referrer"
+//   type="number"
+  value={referrer}
+  onChange={handleRefferer}
+/>  </>}
 </Grid>
-                    <Box component="button"width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+{!regstatus&&      <Box component="button" onClick={handleReferralSubmit} width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
                     fontFamily={'system-ui'} padding="5px">
-                    Add Referer</Box>
+                    Add Referer</Box>}
+                  
                 
                     </>
     )
@@ -666,6 +716,7 @@ function MyProjectCard(props){
     const { pathname, hash } = useLocation();
     const [data,setData] = useState([]);
     const [deals,setDeals] = useState([]);
+    const { account } = useActiveWeb3React();
     const [len,setlen] = useState(0);
     // const [deals,setdeals] = useState([]);
     const tokenAddress = pathname.split('/')[pathname.split('/').length - 1];
@@ -711,7 +762,8 @@ function MyProjectCard(props){
     return(
         <>
         { deals.length>0 &&
-         deals.map((item,k)=>{
+         deals.map((item,k)=>{     if( item.whiteLists.includes(account) ){
+      
             return(
             <div key = {k}>
      <MHidden width="mdDown">
@@ -741,11 +793,72 @@ function MyProjectCard(props){
             </Grid>
         </Grid>
         </MHidden>
+
+        <MHidden width ="mdUp">
+        <Grid container direction="row" bgcolor={"#232323"} borderRadius={1} padding="15px" marginTop="20px">
+            <Grid item md="1">
+                <Box component="img" src={imageURL('geni-logo.png')}></Box>
+            </Grid>
+            <Grid item md="3" align="left" justifyCenter="flex-start">
+                <Grid><Box backgroundColor="rgba(255, 255, 255, 0.1)" display="flex" justifyContent="center" width="50%" color="white">{item.status} </Box></Grid>
+                <Grid color="white"> {item.name}  </Grid>
+            </Grid>
+            <Grid item md="2" align="left" justifyCenter="flex-start">
+                <Grid color="white">Start In</Grid>
+                <Grid color="white"> {item.startDateTime} </Grid>
+            </Grid>
+            <Grid item md="2" align="left" justifyCenter="flex-start">
+                <Grid color="white">End In</Grid>
+                <Grid color="white">{item.endDateTime}</Grid>
+            </Grid>
+            <Grid item md="2" align="left" justifyCenter="flex-start">
+                <Grid color="white">Allocation</Grid>
+                <Grid color="white"> {item.maxAllocationPerUser} </Grid>
+            </Grid>
+            <Grid item md="2" alignItems="center" justifyContent="right" display="flex" paddingRight="15px">
+                {props.angle === "down" ? <Box component="img" src={imageURL('angle_down.png')}/>
+                : <Box component="img" src={imageURL('angle_up.png')}/>}
+            </Grid>
+        </Grid>
+        <Grid fontSize={16}>
+            <Grid item xs={12} color='white' marginTop='20px'>
+              HARDCAP
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+              {item?.hardCap} USDC
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              OPEN TIME
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+              {item.startDateTime}
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              CLOSE TIME
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+            {item.endDateTime}
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              LISTING DATE
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+              Jan 31, 2022, 9:00:00 PM
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              DEAL
+            </Grid>
+            <Grid item xs={12} color='#56C5FF' marginBottom='30px'>
+              INO
+            </Grid>
+          </Grid>
+        </MHidden>
             </div>
-            )
+            )}
         })}
         {deals.length==0 &&    <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
                     Loading...</Box></Grid>   }
+                    
    
         {/* <MHidden width="mdUp">
         <Grid item container xs={12} bgcolor={"#232323"} padding="15px" border="1px solid #56C5FF" borderRadius={1} boxShadow="0px 6px 50px #000000;">
