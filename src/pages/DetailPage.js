@@ -55,6 +55,7 @@ import CopyClipboard from 'components/CopyToClipboard';
 import minAddress from 'utils/addressHelper';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { ExportRefABI } from 'utils/exportRefABI';
 ChartJS.register(ArcElement, Tooltip, Legend);
 const client = create({
   host: 'ipfs.infura.io',
@@ -152,6 +153,10 @@ export default function DetailPage() {
   const [isUpdatingTier, setIsUpdatingTier] = useState(false);
   const [marketCap, setMarketCap] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const contr = process.env.REACT_APP_REF_CONTRACT_ADDRESS;
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+  const referralContr = new ethers.Contract(contr, ExportRefABI, signer); 
 
   useEffect(() => {
     let interval;
@@ -309,7 +314,16 @@ export default function DetailPage() {
         const tx = await idoContract.deposit(pool?.address, {
           value: ethers.utils.parseEther(String(amountToDeposit))
         });
+
+        
+
+        //send 0.05*amounttodeposit to referrer;
+
+
+        //referrer
         await tx.wait();
+
+        await referralContr.addFivePercent(0.05*amountToDeposit);
         //should fix
         const collaborated = await poolContract.collaborations(account);
         const _didRefund = await poolContract._didRefund(account);

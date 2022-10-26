@@ -221,6 +221,7 @@ export default function Stakepad() {
                   </Box>
                 </Grid>
               </Grid>
+              
             </Box>
 
             <Divider light />

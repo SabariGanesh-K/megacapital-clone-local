@@ -60,6 +60,7 @@ export default function Router() {
         { path: '/idodeals', element: <IdoDeals /> },
         { path: '/vote', element: <Vote /> },
         { path: '/dashboard', element: <Dashboard /> },
+        {path:'/refer/:address',element: <Dashboard/> },
         { path: '/vcdeals', element: <VCDeals /> },
         { path: '/stakingpool', element: <StakingPool /> },
         { path: '/helpcenter', element: <HelpCenter /> },

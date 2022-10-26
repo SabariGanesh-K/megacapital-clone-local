@@ -174,9 +174,9 @@ export default function Stakepad() {
                     <Grid marginTop="20px" color="#56C5FF" fontSize="34px">
                         My Projects
                     </Grid>
-                    <MyProjectCard angle="down"></MyProjectCard>
+                    {/* <MyProjectCard angle="down"></MyProjectCard> */}
                     {/* <MyProjectCard angle="up"></MyProjectCard> */}
-                    <MyLocationCard></MyLocationCard>
+                    {/* <MyLocationCard></MyLocationCard> */}
                     <ReferralCard></ReferralCard>
                 </Grid>
             </MHidden>
@@ -239,18 +239,16 @@ function VoteCard(props){
     );
 }
 function ReferralCard(){
-    const [referrer,setrefreer] = useState("");
-    const [name,setname] = useState("");
-    const [mail,setmail] = useState("");
-    const [amount,setamount] = useState(0);
-    const [bal,setbal] = useState(0);
-    const [regstatus,setregstatus] = useState(false);
+    const { pathname, hash } = useLocation();
     const contr = process.env.REACT_APP_REF_CONTRACT_ADDRESS;
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const polygonContract = new ethers.Contract(contr, ExportRefABI, signer); 
-    const [address, setAddress] = useState("");
-    const { enqueueSnackbar } = useSnackbar();
+    const [adminstats, setAdminstats] = useState("");
+    const [user,setuser] = useState([]);
+    const [Address, setAddress] = useState("");
+    const [refAdd,setrefadd] = useState("")
+ 
     useEffect(() => {
       
         const requestAccounts = async () => {
@@ -261,102 +259,90 @@ function ReferralCard(){
         const fetchData=async()=>{
             let ad = await signer.getAddress();
             setAddress(ad);
-            let stat = await polygonContract.userInfo(ad);
-            alert(stat.name);
-            console.log("weer",stat);
-            setregstatus(stat.name.length>0);
-           let balll= await polygonContract.balanceSpecific(ad);
-           setbal(parseInt(balll._hex)/10**18);
+            let admin = await polygonContract.returnAdminStatus();
+            setAdminstats(admin);
+            if(admin){
+                await polygonContract.returnClaimRequests()
+            }
+           
+            const refAddress = pathname.split('/')[pathname.split('/').length - 1];
+            // alert(refAddress);
+            if (refAddress[0]=="0"){
+                setrefadd(refAddress)
+            }
+
+
+           let userI= await polygonContract.userInfo(ad);
+console.log("contract user is",userI);
+           setuser(userI);
+        //    setbal(parseInt(balll._hex)/10**18);
 
         }
         requestAccounts().catch(console.errror)
         fetchData().catch(console.error)
     }, [])
 
+    const addReffererHandler = async() =>{
+        await polygonContract.addRefferer();
+
+        
+    }
+
+    const handleClaimReward = async() =>{
+        await polygonContract.claimRewards();
+    }
+
+
     
-    
-    const handleName = (e) =>{
-setname(e.target.value)
-    }
-    const handleMail = (e) =>{
-setmail(e.target.value)
-    }
-    const handleRefferer = (e) =>{
-setrefreer(e.target.value);
-    }
-    const handleReferralSubmit = async() =>{
- 
-            await polygonContract.addReffererAndSendRewards(referrer,mail,name);
 
-       
-
-    }
-
-    const handleClaimRewards = async() =>{
-  
-            await polygonContract.claimRewards(address);
-
-      
-    }
     return(
         <>
-        <div>Your balancee:-  {bal} </div>
+       
         <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h2" fontFamily={'system-ui'} color="#56C5FF">
                     Referral</Box></Grid>
-                    <Box onClick={handleClaimRewards} component="button"width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                 
+                   
+       { refAdd&& user.length>0&& user.referrer==="0x0000000000000000000000000000000000000000" &&<>             <Grid bgcolor={"#232323"} padding="20px" borderRadius={1}> Your Referrer:- {refAdd} </Grid>
+
+
+
+
+
+   <Box component="button" onClick={addReffererHandler} width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
                     fontFamily={'system-ui'} padding="5px">
-                    Claim Reward</Box>
-                    <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'} wrap>
-{!regstatus&&<>   <TextField style={{
-                        border:"none",
-                        margin:'2%',
-                        fontSize: "18px",
-                        justifyContent:"center",
-                        alignItems:"center",
-                        display:"flex",
-                       
-                       
-                    }}
-  id="outlined-name"
-  label="Name"
-  value={name}
-  onChange={handleName}
-/>
-<TextField style={{
-                        border:"none",
-                        margin:'2%',
-                        fontSize: "18px",
-                        justifyContent:"center",
-                        alignItems:"center",
-                        display:"flex",
-                        
-                       
-                    }}
-  id="outlined-name"
-  label="Mail"
-  value={mail}
-  onChange={handleMail}
-/>
-<TextField style={{
-                        border:"none",
-                        margin:'2%',
-                        fontSize: "18px",
-                        justifyContent:"center",
-                        alignItems:"center",
-                        display:"flex",
-                       
-                       
-                    }}
-  id="outlined-name"
-  label="Referrer"
-//   type="number"
-  value={referrer}
-  onChange={handleRefferer}
-/>  </>}
-</Grid>
-{!regstatus&&      <Box component="button" onClick={handleReferralSubmit} width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                    Add Referer</Box>
+                    </>
+                    }
+     <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h4" fontFamily={'system-ui'} color="#56C5FF">
+                    Your referrals</Box></Grid>
+
+                    {/* {user.length>0 && user.wallet!="0x0000000000000000000000000000000000000000"&& user.referredUsers.length>0    &&   
+                    user.referredUsers.map((item,k)=>{
+                        return(
+                            <div key = {k}>
+                                   <Grid fontSize="24px"  className='bg-black p-2 rounded-full' color="white" sm="12">{item}</Grid>
+                            </div>
+                        )
+                    })   
+                    
+               
+
+
+                    
+                    } */}
+{/* 
+                    {user.length>0 && user.referredUsers.length==0 &&   
+                      <Grid fontSize="24px"   color="white" sm="12"> ----- </Grid>
+                    }
+                    {user.length>0 && user.referredUsers.length> 0&& user.claimStatus==0 &&   <Box component="button" onClick={handleClaimReward} width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
                     fontFamily={'system-ui'} padding="5px">
-                    Add Referer</Box>}
+                    CLAIM REWARDS</Box>  }
+
+                    {user.length>0 && user.referredUsers.length> 0&&   user.claimStatus==1 &&  <Box component="button"  width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                    fontFamily={'system-ui'} padding="5px">
+                    CLAIM REQUESTED</Box>  } */}
+
+                    
                   
                 
                     </>
@@ -365,7 +351,10 @@ setrefreer(e.target.value);
 function ProgressCard(){
     // const { library, account } = useActiveWeb3React();
     const [value, setValue] = React.useState(30);
-    const conds = {alpha:1000,beta:2000,gamma:3000,delta:4000,epsilon:5000,zeta:6000}
+
+    const conds = {alpha:500,beta:1000,gamma:3000,delta:4000,epsilon:5000,zeta:6000}
+
+
     const [tier, settier] = useState('');
     const contr = process.env.REACT_APP_CONTRACT_ADDRESS;
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -620,7 +609,7 @@ const handlesubmit = async() =>{
                     {/* src="my_public/images/address-logo.png" */}
                 </Grid>
                 <Grid item md="8" spacing={3} direction="column" alignItems="left" display="flex" marginTop="5px" >
-                    <Grid fontSize="24px" color="white" sm="12">{props.title}</Grid>
+                <Grid fontSize="24px" color="white" sm="12">{props.title}</Grid>
                     <Grid fontSize="15px" color="white" sm="12">{address}
                         {(props.token === 1) ? <Box component="button"onClick={() => {navigator.clipboard.writeText(address)}} backgroundColor="#303030" border="none"><Box component="img" src={imageURL('copy.png')} /></Box> : <Box/>}
                         </Grid>
@@ -712,6 +701,75 @@ function ProjectCard(props){
         </>
     );
 }
+
+function ProjectDisplayCard(props){
+    let item = props.item;
+    const [expanded,setexpanded]=useState(false);
+    return(
+    <>
+            <Grid container direction="row" bgcolor={"#232323"} borderRadius={1} padding="15px" marginTop="20px">
+            <Grid item md="1">
+                <Box component="img" src={imageURL('geni-logo.png')}></Box>
+            </Grid>
+            <Grid item md="3" align="left" justifyCenter="flex-start">
+                <Grid><Box backgroundColor="rgba(255, 255, 255, 0.1)" display="flex" justifyContent="center" width="50%" color="white">{item.status} </Box></Grid>
+                <Grid color="white"> {item.name}  </Grid>
+            </Grid>
+            <Grid item md="2" align="left" justifyCenter="flex-start">
+                <Grid color="white">Start In</Grid>
+                <Grid color="white"> {item.startDateTime} </Grid>
+            </Grid>
+            <Grid item md="2" align="left" justifyCenter="flex-start">
+                <Grid color="white">End In</Grid>
+                <Grid color="white">{item.endDateTime}</Grid>
+            </Grid>
+            <Grid item md="2" align="left" justifyCenter="flex-start">
+                <Grid color="white">Allocation</Grid>
+                <Grid color="white"> {item.maxAllocationPerUser} </Grid>
+            </Grid>
+            <Grid item md="2" alignItems="center" justifyContent="right" display="flex" paddingRight="15px">
+                {!expanded ? <Box  onClick={()=>setexpanded(!expanded)} component="img" src={imageURL('angle_down.png')}/>
+                : <Box onClick={()=>setexpanded(!expanded)} component="img" src={imageURL('angle_up.png')}/>}
+            </Grid>
+        </Grid>
+    
+    {expanded&&    <Grid fontSize={16}>
+            <Grid item xs={12} color='white' marginTop='20px'>
+              HARDCAP
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+              {item?.hardCap} USDC
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              OPEN TIME
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+              {item.startDateTime}
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              CLOSE TIME
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+            {item.endDateTime}
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              LISTING DATE
+            </Grid>
+            <Grid item xs={12} color='#56C5FF'>
+              Jan 31, 2022, 9:00:00 PM
+            </Grid>
+            <Grid item xs={12} color='white' marginTop='15px'>
+              DEAL
+            </Grid>
+            <Grid item xs={12} color='#56C5FF' marginBottom='30px'>
+              INO
+            </Grid>
+          </Grid>}
+        
+
+</>
+    )
+}
 function MyProjectCard(props){
     const { pathname, hash } = useLocation();
     const [data,setData] = useState([]);
@@ -762,99 +820,20 @@ function MyProjectCard(props){
     return(
         <>
         { deals.length>0 &&
-         deals.map((item,k)=>{     if( item.whiteLists.includes(account) ){
+         deals.map((item,k)=>{   
+            if(item.whiteLists.includes(account)){
       
             return(
             <div key = {k}>
-     <MHidden width="mdDown">
-        <Grid container direction="row" bgcolor={"#232323"} borderRadius={1} padding="15px" marginTop="20px">
-            <Grid item md="1">
-                <Box component="img" src={imageURL('geni-logo.png')}></Box>
-            </Grid>
-            <Grid item md="3" align="left" justifyCenter="flex-start">
-                <Grid><Box backgroundColor="rgba(255, 255, 255, 0.1)" display="flex" justifyContent="center" width="50%" color="white">{item.status} </Box></Grid>
-                <Grid color="white"> {item.name}  </Grid>
-            </Grid>
-            <Grid item md="2" align="left" justifyCenter="flex-start">
-                <Grid color="white">Start In</Grid>
-                <Grid color="white"> {item.startDateTime} </Grid>
-            </Grid>
-            <Grid item md="2" align="left" justifyCenter="flex-start">
-                <Grid color="white">End In</Grid>
-                <Grid color="white">{item.endDateTime}</Grid>
-            </Grid>
-            <Grid item md="2" align="left" justifyCenter="flex-start">
-                <Grid color="white">Allocation</Grid>
-                <Grid color="white"> {item.maxAllocationPerUser} </Grid>
-            </Grid>
-            <Grid item md="2" alignItems="center" justifyContent="right" display="flex" paddingRight="15px">
-                {props.angle === "down" ? <Box component="img" src={imageURL('angle_down.png')}/>
-                : <Box component="img" src={imageURL('angle_up.png')}/>}
-            </Grid>
-        </Grid>
-        </MHidden>
 
-        <MHidden width ="mdUp">
-        <Grid container direction="row" bgcolor={"#232323"} borderRadius={1} padding="15px" marginTop="20px">
-            <Grid item md="1">
-                <Box component="img" src={imageURL('geni-logo.png')}></Box>
-            </Grid>
-            <Grid item md="3" align="left" justifyCenter="flex-start">
-                <Grid><Box backgroundColor="rgba(255, 255, 255, 0.1)" display="flex" justifyContent="center" width="50%" color="white">{item.status} </Box></Grid>
-                <Grid color="white"> {item.name}  </Grid>
-            </Grid>
-            <Grid item md="2" align="left" justifyCenter="flex-start">
-                <Grid color="white">Start In</Grid>
-                <Grid color="white"> {item.startDateTime} </Grid>
-            </Grid>
-            <Grid item md="2" align="left" justifyCenter="flex-start">
-                <Grid color="white">End In</Grid>
-                <Grid color="white">{item.endDateTime}</Grid>
-            </Grid>
-            <Grid item md="2" align="left" justifyCenter="flex-start">
-                <Grid color="white">Allocation</Grid>
-                <Grid color="white"> {item.maxAllocationPerUser} </Grid>
-            </Grid>
-            <Grid item md="2" alignItems="center" justifyContent="right" display="flex" paddingRight="15px">
-                {props.angle === "down" ? <Box component="img" src={imageURL('angle_down.png')}/>
-                : <Box component="img" src={imageURL('angle_up.png')}/>}
-            </Grid>
-        </Grid>
-        <Grid fontSize={16}>
-            <Grid item xs={12} color='white' marginTop='20px'>
-              HARDCAP
-            </Grid>
-            <Grid item xs={12} color='#56C5FF'>
-              {item?.hardCap} USDC
-            </Grid>
-            <Grid item xs={12} color='white' marginTop='15px'>
-              OPEN TIME
-            </Grid>
-            <Grid item xs={12} color='#56C5FF'>
-              {item.startDateTime}
-            </Grid>
-            <Grid item xs={12} color='white' marginTop='15px'>
-              CLOSE TIME
-            </Grid>
-            <Grid item xs={12} color='#56C5FF'>
-            {item.endDateTime}
-            </Grid>
-            <Grid item xs={12} color='white' marginTop='15px'>
-              LISTING DATE
-            </Grid>
-            <Grid item xs={12} color='#56C5FF'>
-              Jan 31, 2022, 9:00:00 PM
-            </Grid>
-            <Grid item xs={12} color='white' marginTop='15px'>
-              DEAL
-            </Grid>
-            <Grid item xs={12} color='#56C5FF' marginBottom='30px'>
-              INO
-            </Grid>
-          </Grid>
-        </MHidden>
+
+<ProjectDisplayCard item={item}/>
+        
+
+        
             </div>
-            )}
+            )
+            }
         })}
         {deals.length==0 &&    <Grid item sm="12" md="6" display="flex" justifyContent={'flex-center'}><Box component="h5" fontFamily={'system-ui'} color="#56C5FF">
                     Loading...</Box></Grid>   }
@@ -1041,7 +1020,7 @@ function AllocationList(props){
                 setstaked(stakedr);
                 let rewardsr = await stakingContract.earned(adr);
                 setreward(rewardsr);
-                alert("done");
+                // alert("done");
             }
             catch(error){
 console.log(error);
