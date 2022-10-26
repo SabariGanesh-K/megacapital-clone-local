@@ -325,14 +325,16 @@ console.log("contract user is",userI);
                     }
      <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h4" fontFamily={'system-ui'} color="#56C5FF">
                     Your referrals</Box></Grid>
-
+                    <div className='flex flex-row justify-evenly flex-wrap'>
                   {user.length>0 && referredUsers.length>0    &&   
                     referredUsers.map((item,k)=>{
                         return(
+                            
                             <div key = {k}>
-                                   <Grid fontSize="24px"  className='bg-black p-2 rounded-full' color="white" sm="12">{item}</Grid>
+                                   <div  color="white" sm="12">{item}</div>
                             </div>
-                        )
+                         
+                    )
                     })   
                     
                
@@ -340,6 +342,8 @@ console.log("contract user is",userI);
 
                     
                     } 
+                       
+                    </div>
 
                     {user.length>0 && referredUsers.length==0 &&   
                       <Grid fontSize="24px"   color="white" sm="12"> ----- </Grid>
