@@ -278,7 +278,7 @@ console.log("contract user is",userI);
            setuser(userI);
         //    setbal(parseInt(balll._hex)/10**18);
 
-        }
+        
         let num = await polygonContract.returnReferredUsersLength();
         let tmpDat=[];
         for (var i=0;i<num;i++){
@@ -286,6 +286,7 @@ console.log("contract user is",userI);
             tmpDat.push(value)
         }
         setreferredUsers(tmpDat)
+    }
         requestAccounts().catch(console.errror)
         fetchData().catch(console.error)
     }, [])
