@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const ExportRefABI = [
+export const ExportRefABI =  [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -82,6 +82,30 @@ export const ExportRefABI = [
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "referredUsers",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

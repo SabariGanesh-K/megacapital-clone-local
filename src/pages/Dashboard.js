@@ -248,6 +248,7 @@ function ReferralCard(){
     const [user,setuser] = useState([]);
     const [Address, setAddress] = useState("");
     const [refAdd,setrefadd] = useState("")
+    const [referredUsers,setreferredUsers] = useState([]);
  
     useEffect(() => {
       
@@ -278,6 +279,8 @@ console.log("contract user is",userI);
         //    setbal(parseInt(balll._hex)/10**18);
 
         }
+        let tmpDat = await polygonContract.referredUsers(ad);
+        setreferredUsers(tmpDat)
         requestAccounts().catch(console.errror)
         fetchData().catch(console.error)
     }, [])
@@ -316,8 +319,8 @@ console.log("contract user is",userI);
      <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h4" fontFamily={'system-ui'} color="#56C5FF">
                     Your referrals</Box></Grid>
 
-                  {user.length>0 && user.wallet!="0x0000000000000000000000000000000000000000"&& user.referredUsers.length>0    &&   
-                    user.referredUsers.map((item,k)=>{
+                  {user.length>0 && user.wallet!="0x0000000000000000000000000000000000000000"&& referredUsers.length>0    &&   
+                    referredUsers.map((item,k)=>{
                         return(
                             <div key = {k}>
                                    <Grid fontSize="24px"  className='bg-black p-2 rounded-full' color="white" sm="12">{item}</Grid>
@@ -331,14 +334,14 @@ console.log("contract user is",userI);
                     
                     } 
 
-                    {user.length>0 && user.referredUsers.length==0 &&   
+                    {user.length>0 && referredUsers.length==0 &&   
                       <Grid fontSize="24px"   color="white" sm="12"> ----- </Grid>
                     }
-                    {user.length>0 && user.referredUsers.length> 0&& user.claimStatus==0 &&   <Box component="button" onClick={handleClaimReward} width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                    {user.length>0 && referredUsers.length> 0&& user.claimStatus==0 &&   <Box component="button" onClick={handleClaimReward} width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
                     fontFamily={'system-ui'} padding="5px">
                     CLAIM REWARDS</Box>  }
 
-                    {user.length>0 && user.referredUsers.length> 0&&   user.claimStatus==1 &&  <Box component="button"  width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
+                    {user.length>0 && referredUsers.length> 0&&   user.claimStatus==1 &&  <Box component="button"  width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
                     fontFamily={'system-ui'} padding="5px">
                     CLAIM REQUESTED</Box>  } 
 
