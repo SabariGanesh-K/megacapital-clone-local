@@ -302,7 +302,7 @@ console.log("contract user is",userI);
                     Referral</Box></Grid>
                  
                    
-       { refAdd&& user.length>0&& user.referrer==="0x0000000000000000000000000000000000000000" &&<>             <Grid bgcolor={"#232323"} padding="20px" borderRadius={1}> Your Referrer:- {refAdd} </Grid>
+       { refAdd&& user.length>0&&  refAdd!=Address&& user.referrer==="0x0000000000000000000000000000000000000000" &&<>             <Grid bgcolor={"#232323"} padding="20px" borderRadius={1}> Your Referrer:- {refAdd} </Grid>
 
 
 
@@ -316,7 +316,7 @@ console.log("contract user is",userI);
      <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h4" fontFamily={'system-ui'} color="#56C5FF">
                     Your referrals</Box></Grid>
 
-                    {/* {user.length>0 && user.wallet!="0x0000000000000000000000000000000000000000"&& user.referredUsers.length>0    &&   
+                  {user.length>0 && user.wallet!="0x0000000000000000000000000000000000000000"&& user.referredUsers.length>0    &&   
                     user.referredUsers.map((item,k)=>{
                         return(
                             <div key = {k}>
@@ -329,8 +329,8 @@ console.log("contract user is",userI);
 
 
                     
-                    } */}
-{/* 
+                    } 
+
                     {user.length>0 && user.referredUsers.length==0 &&   
                       <Grid fontSize="24px"   color="white" sm="12"> ----- </Grid>
                     }
@@ -340,7 +340,7 @@ console.log("contract user is",userI);
 
                     {user.length>0 && user.referredUsers.length> 0&&   user.claimStatus==1 &&  <Box component="button"  width="100%" backgroundColor="#56C5FF" color="white" borderRadius={0.5} border="none" 
                     fontFamily={'system-ui'} padding="5px">
-                    CLAIM REQUESTED</Box>  } */}
+                    CLAIM REQUESTED</Box>  } 
 
                     
                   
