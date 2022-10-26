@@ -286,6 +286,7 @@ console.log("contract user is",userI);
             tmpDat.push(value)
         }
         setreferredUsers(tmpDat)
+        console.log("referred users",referredUsers)
     }
         requestAccounts().catch(console.errror)
         fetchData().catch(console.error)
@@ -325,7 +326,7 @@ console.log("contract user is",userI);
      <Grid item sm="12" md="6" display="flex" justifyContent={'flex-start'}><Box component="h4" fontFamily={'system-ui'} color="#56C5FF">
                     Your referrals</Box></Grid>
 
-                  {user.length>0 && user.wallet!="0x0000000000000000000000000000000000000000"&& referredUsers.length>0    &&   
+                  {user.length>0 && referredUsers.length>0    &&   
                     referredUsers.map((item,k)=>{
                         return(
                             <div key = {k}>
