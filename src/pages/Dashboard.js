@@ -174,9 +174,9 @@ export default function Stakepad() {
                     <Grid marginTop="20px" color="#56C5FF" fontSize="34px">
                         My Projects
                     </Grid>
-                    {/* <MyProjectCard angle="down"></MyProjectCard> */}
-                    {/* <MyProjectCard angle="up"></MyProjectCard> */}
-                    {/* <MyLocationCard></MyLocationCard> */}
+                    <MyProjectCard angle="down"></MyProjectCard>
+                    <MyProjectCard angle="up"></MyProjectCard>
+                    <MyLocationCard></MyLocationCard>
                     <ReferralCard></ReferralCard>
                 </Grid>
             </MHidden>
@@ -283,7 +283,7 @@ console.log("contract user is",userI);
     }, [])
 
     const addReffererHandler = async() =>{
-        await polygonContract.addRefferer();
+        await polygonContract.addRefferer(refAdd);
 
         
     }
