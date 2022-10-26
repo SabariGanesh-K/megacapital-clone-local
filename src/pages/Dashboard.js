@@ -279,7 +279,12 @@ console.log("contract user is",userI);
         //    setbal(parseInt(balll._hex)/10**18);
 
         }
-        let tmpDat = await polygonContract.referredUsers(ad);
+        let num = await polygonContract.returnReferredUsersLength();
+        let tmpDat=[];
+        for (var i=0;i<num;i++){
+            let value = await polygonContract.referredUsers(ad,i);
+            tmpDat.push(value)
+        }
         setreferredUsers(tmpDat)
         requestAccounts().catch(console.errror)
         fetchData().catch(console.error)

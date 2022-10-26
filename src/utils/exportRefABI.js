@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const ExportRefABI =  [
+export const ExportRefABI =   [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -149,6 +149,19 @@ export const ExportRefABI =  [
         "internalType": "struct ReferralMega.ClaimRequest[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "returnReferredUsersLength",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
